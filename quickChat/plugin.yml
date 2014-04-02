@@ -1,0 +1,64 @@
+name: QuickChat
+main: quickChat.QuickChat
+version: 1.9.5
+description: QuickChat overhauls the chat system into something simpler and more intelligent to use.
+author: JayLegoMine14
+website: http://justgame.co/
+softdepend: [Vault]
+commands:
+   '@':
+      description: Does the same as "@ in chat.
+      usage: /<command>
+   '!':
+      description: Does the same as "!" in chat.
+      usage: /<command>
+   '>':
+      description: Does the same as ">" in chat.
+      usage: /<command>
+permissions:
+   quickchat.*:
+      description: Gives access to all quickchat commands and actions.
+      children:
+         quickchat.channel: true
+         quickchat.message: true
+         quickchat.broadcast: true
+         quickchat.rawtext: true
+         quickchat.ping: true
+         quickchat.ignore: true
+         quickchat.ignore.deny: true
+         quickchat.code.*: true
+   quickchat.channel:
+      description: Give Player access to All channels.
+      default: op
+   quickchat.message:
+      description: Give Player permission to send Messages.
+      default: true
+   quickchat.broadcast:
+      description: Give Player permission to broadcast messages.
+      default: op
+   quickchat.rawtext:
+      description: Give Player permission to send raw text.
+      default: op
+   quickchat.ping:
+      description: Give Player permission to see/hear ping.
+      default: true
+   quickchat.ignore:
+      description: Give Player permission to ignore other players.
+      default: true
+   quickchat.ignore.deny:
+      description: Player cannot be ignored.
+      default: op
+   quickchat.code.*:
+      description: Give Player permission to use color and format codes.
+      children:
+         quickchat.code.color: true
+         quickchat.code.format: true
+   quickchat.code.color:
+      description: Give Player permission to use color codes.
+      default: op
+   quickchat.code.format:
+      description: Give Player permission to use format codes.
+      default: op
+  
+      
+   

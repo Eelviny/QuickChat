@@ -173,6 +173,7 @@ public class chatListener implements Listener {
 							QuickChat.getConsole().sendMessage(color + "<" + reset + sendersName + " -> " + channel + color
 									+ "> " + reset + sendMessage);
 
+							int PlayersWhoHeardYou = 0;
 							for(Channel channelInList: channels.values()){
 								for(String playerInChannel: channelInList.getplayers()){
 									Player reciever = Bukkit.getPlayerExact(playerInChannel);
@@ -191,8 +192,10 @@ public class chatListener implements Listener {
 														+ reset + finalMessage;
 
 												if(!isIgnored(sendersName, reciever.getDisplayName())
-														&& !reciever.equals(sender))
-												reciever.sendMessage(finalMessage);
+														&& !reciever.equals(sender)){
+													reciever.sendMessage(finalMessage);
+													PlayersWhoHeardYou++;
+												}
 											}
 										}
 								}
@@ -216,9 +219,15 @@ public class chatListener implements Listener {
 											if(!isIgnored(sendersName, reciever.getDisplayName())
 													&& !reciever.equals(sender))
 											reciever.sendMessage(finalMessage);
+											PlayersWhoHeardYou++;
 										}
 									}
 							}
+							
+							if(PlayersWhoHeardYou == 0){
+								sender.sendMessage(messageData.get("quickchat.info.nobody"));
+							}
+							
 						}else{
 							sender.sendMessage(messageData.get("quickchat.channels.nopermissionsend")
 									.replace("%channel%", channel));
@@ -659,6 +668,9 @@ public class chatListener implements Listener {
 
 						QuickChat.getConsole().sendMessage(consoleMessage);
 
+						
+						int PlayersWhoHeardYou = -1;
+						
 						for(Channel channelInList: channels.values()){
 							for(String playerInChannel: channelInList.getplayers()){
 								Player reciever = Bukkit.getPlayerExact(playerInChannel);
@@ -678,8 +690,10 @@ public class chatListener implements Listener {
 													+ sendersName + QuickChat.getPlayerSuffix(sender) + color + "> " + reset
 													+ sendMessage;
 
-											if(!isIgnored(sendersName, reciever.getDisplayName()))
+											if(!isIgnored(sendersName, reciever.getDisplayName())){
 												reciever.sendMessage(sendMessage);
+												PlayersWhoHeardYou++;
+											}
 										}
 									}
 							}
@@ -701,10 +715,16 @@ public class chatListener implements Listener {
 										sendMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
 												+ QuickChat.getPlayerSuffix(sender) + color + "> " + reset + sendMessage;
 
-										if(!isIgnored(sendersName, reciever.getDisplayName()))
+										if(!isIgnored(sendersName, reciever.getDisplayName())){
 											reciever.sendMessage(sendMessage);
+											PlayersWhoHeardYou++;
+										}
 									}
 								}
+						}
+						
+						if(PlayersWhoHeardYou == 0){
+							sender.sendMessage(messageData.get("quickchat.info.nobody"));
 						}
 					}else{
 						sender.sendMessage(messageData.get("quickchat.channels.null"));

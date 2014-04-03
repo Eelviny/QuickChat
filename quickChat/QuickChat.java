@@ -645,6 +645,7 @@ public class QuickChat extends JavaPlugin {
 		setMessage("quickchat.ignore.listignored", "&aPlayers You Are Ignoring:&2%playerList%/n");
 		setMessage("quickchat.ignore.listignoring", "&aPlayers Ignoring You:&2%playerList%");
 		
+		setMessage("quickchat.info.nobody", "&cNobody heard you! No players in channel or within range.");
 		setMessage("quickchat.info.playerschannel", "&a%player% is in %channel% channel.");
 		setMessage("quickchat.info.playersconversation", "&a%player% is in a private conversation.");
 		setMessage("quickchat.info.console", "&aThe Console is &4&oEverywhere&c... &calways watching you...");

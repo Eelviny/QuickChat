@@ -184,7 +184,8 @@ public class chatListener implements Listener {
 
 											if(inRange(sender, reciever, channel)){
 												String finalMessage = sendMessage;
-												if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+												if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping") 
+														&& !isIgnored(sendersName, reciever.getDisplayName()))
 													finalMessage = MessageUtils.ping(reciever, finalMessage);
 												
 												finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender)
@@ -209,7 +210,8 @@ public class chatListener implements Listener {
 
 										if(inRange(sender, reciever, channel)){
 											String finalMessage = sendMessage;
-											if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+											if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
+													&& !isIgnored(sendersName, reciever.getDisplayName()))
 												finalMessage = MessageUtils.ping(reciever, finalMessage);
 											
 											finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender)
@@ -412,14 +414,19 @@ public class chatListener implements Listener {
 										sender.sendMessage(messageData.get("quickchat.ignore.message")
 												.replace("%player%", reciever.getDisplayName()));
 									}else{
-										if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+										if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping") && 
+												!isIgnored(sendersName, reciever.getDisplayName()))
 											sendMessage = MessageUtils.ping(reciever, sendMessage);
 
 										String fullMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
 												+ reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r"
 												+ sendMessage;
-										if(!reciever.equals(sender)) reciever.sendMessage(fullMessage);
-
+										if(!reciever.equals(sender) && !isIgnored(sendersName, reciever.getDisplayName())) 
+											reciever.sendMessage(fullMessage);
+										else if (isIgnored(sendersName, reciever.getDisplayName()))
+											sender.sendMessage(messageData.get("quickchat.ignore.message")
+													.replaceAll( "%player%", reciever.getDisplayName()));
+												
 										sender.sendMessage(fullMessage);
 
 										QuickChat.getConsole().sendMessage(fullMessage);
@@ -642,7 +649,8 @@ public class chatListener implements Listener {
 							String reciversMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
 									+ reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r " + sendMessage;
 							if(!reciever.equals(sender)) sender.sendMessage(reciversMessage);
-							if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+							if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
+									&& !isIgnored(sendersName, reciever.getDisplayName()))
 								sendMessage = MessageUtils.ping(reciever, sendMessage);
 
 							sendMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
@@ -684,7 +692,8 @@ public class chatListener implements Listener {
 										sendMessage = MessageUtils.formatCodes(sender, sendMessage);
 
 										if(inRange(sender, reciever, channel)){
-											if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+											if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
+													&& !isIgnored(sendersName, reciever.getDisplayName()))
 												sendMessage = MessageUtils.ping(reciever, sendMessage);
 											sendMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender)
 													+ sendersName + QuickChat.getPlayerSuffix(sender) + color + "> " + reset
@@ -710,7 +719,8 @@ public class chatListener implements Listener {
 									sendMessage = MessageUtils.formatCodes(sender, sendMessage);
 
 									if(inRange(sender, reciever, channel)){
-										if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping"))
+										if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
+												&& !isIgnored(sendersName, reciever.getDisplayName()))
 											sendMessage = MessageUtils.ping(reciever, sendMessage);
 										sendMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
 												+ QuickChat.getPlayerSuffix(sender) + color + "> " + reset + sendMessage;

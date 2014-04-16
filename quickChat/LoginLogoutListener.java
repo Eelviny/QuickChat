@@ -52,6 +52,7 @@ public class LoginLogoutListener implements Listener {
 			QuickChat.removeIgnoredPlayer(player.getDisplayName());
 
 			String channelName = getChannel(player.getDisplayName());
+			if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
 			if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
 			QuickChat.getConsole().sendMessage("[QuickChat] "
 					+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
@@ -68,6 +69,7 @@ public class LoginLogoutListener implements Listener {
 
 			String channelName = getChannel(player.getDisplayName());
 			if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
+			if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
 			QuickChat.getConsole().sendMessage("[QuickChat] "
 					+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
 		}

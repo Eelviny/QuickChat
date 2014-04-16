@@ -387,6 +387,7 @@ public class chatListener implements Listener {
 									sendMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
 											+ reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r " + sendMessage;
 									QuickChat.addLastPlayers(reciever.getDisplayName(), sendersName);
+									if(QuickChat.getlastPlayers().get(sendersName).equals("Null")) QuickChat.addLastPlayers(sendersName, reciever.getDisplayName());
 									reciever.sendMessage(sendMessage);
 
 									QuickChat.getConsole().sendMessage(sendMessage);

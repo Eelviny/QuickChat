@@ -20,9 +20,6 @@ public class LoginLogoutListener implements Listener {
 		synchronized(chatListener.class){
 			Player player = event.getPlayer();
 			LinkedHashMap<String, Channel> channels = QuickChat.getChannels();
-			if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())){
-				QuickChat.removeLastPlayers(player.getDisplayName());
-			}
 			
 			QuickChat.addLastPlayers(player.getDisplayName(), "Null");
 			QuickChat.addIgnoredPlayer(player.getDisplayName());

@@ -18,24 +18,26 @@ public class LoginLogoutListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public synchronized void onLogin(PlayerJoinEvent event){
 		synchronized(chatListener.class){
-			Player player = event.getPlayer();
-			LinkedHashMap<String, Channel> channels = QuickChat.getChannels();
-			
-			QuickChat.addLastPlayers(player.getDisplayName(), "Null");
-			QuickChat.addIgnoredPlayer(player.getDisplayName());
-			
-			for(Channel channel: channels.values()){
-				if(player.hasPermission("quickchat.channel." + channel.getName()) || player.hasPermission("quickchat.channel")){
-					channel.addPlayer(player.getDisplayName());
-					QuickChat.getConsole().sendMessage("[QuickChat] "
-							+ messageData.get("quickchat.console.joinchannel").replace("%player%", player.getDisplayName())
-									.replace("%channel%", channel.getName()));
-					break;
+			synchronized(QuickChat.class){
+				Player player = event.getPlayer();
+				LinkedHashMap<String, Channel> channels = QuickChat.getChannels();
+				
+				QuickChat.addLastPlayers(player.getDisplayName(), "Null");
+				QuickChat.addIgnoredPlayer(player.getDisplayName());
+				
+				for(Channel channel: channels.values()){
+					if(player.hasPermission("quickchat.channel." + channel.getName()) || player.hasPermission("quickchat.channel")){
+						channel.addPlayer(player.getDisplayName());
+						QuickChat.getConsole().sendMessage("[QuickChat] "
+								+ messageData.get("quickchat.console.joinchannel").replace("%player%", player.getDisplayName())
+										.replace("%channel%", channel.getName()));
+						break;
+					}
 				}
-			}
-			if(channels.get(getChannel(player.getDisplayName())) == null){
-				QuickChat.getConsole().sendMessage("[QuickChat] "
-						+ messageData.get("quickchat.console.joinnull").replace("%player%", player.getDisplayName()));
+				if(channels.get(getChannel(player.getDisplayName())) == null){
+					QuickChat.getConsole().sendMessage("[QuickChat] "
+							+ messageData.get("quickchat.console.joinnull").replace("%player%", player.getDisplayName()));
+				}
 			}
 		}
 	}
@@ -43,32 +45,36 @@ public class LoginLogoutListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public synchronized void onLogout(PlayerQuitEvent event){
 		synchronized(chatListener.class){
-			Player player = event.getPlayer();
+			synchronized(QuickChat.class){
+				Player player = event.getPlayer();
 
-			QuickChat.removeLastPlayers(player.getDisplayName());
-			QuickChat.removeIgnoredPlayer(player.getDisplayName());
+				QuickChat.removeLastPlayers(player.getDisplayName());
+				QuickChat.removeIgnoredPlayer(player.getDisplayName());
 
-			String channelName = getChannel(player.getDisplayName());
-			if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
-			if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
-			QuickChat.getConsole().sendMessage("[QuickChat] "
-					+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
+				String channelName = getChannel(player.getDisplayName());
+				if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
+				if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
+				QuickChat.getConsole().sendMessage("[QuickChat] "
+						+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
+			}
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public synchronized void onKick(PlayerKickEvent event){
 		synchronized(chatListener.class){
-			Player player = event.getPlayer();
-
-			QuickChat.removeLastPlayers(player.getDisplayName());
-			QuickChat.removeIgnoredPlayer(player.getDisplayName());
-
-			String channelName = getChannel(player.getDisplayName());
-			if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
-			if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
-			QuickChat.getConsole().sendMessage("[QuickChat] "
-					+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
+			synchronized(QuickChat.class){
+				Player player = event.getPlayer();
+	
+				QuickChat.removeLastPlayers(player.getDisplayName());
+				QuickChat.removeIgnoredPlayer(player.getDisplayName());
+	
+				String channelName = getChannel(player.getDisplayName());
+				if(channelName != "Null") QuickChat.removePlayerFromChannel(channelName, player.getDisplayName());
+				if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName())) QuickChat.removePlayerChannel(player.getDisplayName()); 
+				QuickChat.getConsole().sendMessage("[QuickChat] "
+						+ messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
+			}
 		}
 	}
 

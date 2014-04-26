@@ -156,6 +156,7 @@ public class QuickChat extends JavaPlugin {
 	@Override
 	public synchronized boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		synchronized(chatListener.class){
+			synchronized(LoginLogoutListener.class){
 			if(cmd.getName().equalsIgnoreCase("!")){
 	
 				if(sender instanceof Player){
@@ -427,6 +428,7 @@ public class QuickChat extends JavaPlugin {
 			}
 			return true;
 		}
+		}
 	}
 
 	private void setupChat(){
@@ -522,7 +524,8 @@ public class QuickChat extends JavaPlugin {
 	}
 	
 	public static synchronized void removeLastPlayers(String string){
-		lastPlayers.remove(string);
+		if(lastPlayers.containsKey(string))
+			lastPlayers.remove(string);
 	}
 	
 	public static synchronized void addLastPlayers(String string, String string2){
@@ -678,7 +681,7 @@ public class QuickChat extends JavaPlugin {
 	}
 
 	private String getChannel(String player){
-		HashMap<String, Channel> channels = QuickChat.getChannels();
+		HashMap<String, Channel> channels = QuickChat.channels;
 
 		for(Channel channel: channels.values()){
 			for(String playerInChannel: channel.getplayers()){

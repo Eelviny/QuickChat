@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import co.justgame.quickchat.channel.ChannelUtils;
+import co.justgame.quickchat.channel.PlayerChannelUtils;
 import co.justgame.quickchat.main.QuickChat;
 
 public class LoginLogoutListener implements Listener {
@@ -39,8 +40,8 @@ public class LoginLogoutListener implements Listener {
         QuickChat.removeIgnoredPlayer(player.getDisplayName());
 
         String channelName = ChannelUtils.getChannel(player.getDisplayName());
-        if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName()))
-            QuickChat.removePlayerChannel(player.getDisplayName());
+        if(PlayerChannelUtils.playerHasPlayerChannel(player.getDisplayName()))
+            PlayerChannelUtils.removePlayerChannel(player.getDisplayName());
         if(channelName != "Null") ChannelUtils.removePlayerFromChannel(player.getName());
         QuickChat.getConsole().sendMessage("[QuickChat] "
                 + messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
@@ -55,8 +56,8 @@ public class LoginLogoutListener implements Listener {
 
         String channelName = ChannelUtils.getChannel(player.getDisplayName());
         if(channelName != "Null") ChannelUtils.removePlayerFromChannel(player.getName());
-        if(QuickChat.getPlayerChannels().containsKey(player.getDisplayName()))
-            QuickChat.removePlayerChannel(player.getDisplayName());
+        if(PlayerChannelUtils.playerHasPlayerChannel(player.getDisplayName()))
+            PlayerChannelUtils.removePlayerChannel(player.getDisplayName());
         QuickChat.getConsole().sendMessage("[QuickChat] "
                 + messageData.get("quickchat.console.remove").replace("%player%", player.getDisplayName()));
     }

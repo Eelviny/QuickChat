@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import co.justgame.quickchat.channel.ChannelUtils;
+import co.justgame.quickchat.channel.PlayerChannelUtils;
 import co.justgame.quickchat.listeners.utils.MessageUtils;
 import co.justgame.quickchat.main.QuickChat;
 
@@ -31,8 +32,6 @@ public class chatListener implements Listener {
             if(message.startsWith("#")){
                 // Message: #
                 if(message.equals("#")){
-
-                    HashMap<String, String> playerChannels = QuickChat.getPlayerChannels();
 
                     StringBuilder finalMessage = new StringBuilder();
 
@@ -71,7 +70,7 @@ public class chatListener implements Listener {
                                     .replace("%playerList%", players));
                         }
                     }else{
-                        if(playerChannels.containsKey(sendersName)){
+                        if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
                             finalMessage.append(messageData.get("quickchat.channels.info.channel")
                                     .replace("%channel%", "&4In Conversation"));
                         }else{
@@ -99,8 +98,8 @@ public class chatListener implements Listener {
                         if(!ChannelUtils.playerIsAlreadyInChannel(channel, sender)){
                             if(sender.hasPermission("quickchat.channel." + channel) || sender.hasPermission("quickchat.channel")){
 
-                                if(QuickChat.getPlayerChannels().containsKey(sendersName)){
-                                    QuickChat.removePlayerChannel(sendersName);
+                                if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
+                                    PlayerChannelUtils.removePlayerChannel(sendersName);
                                 }
                                 if(ChannelUtils.getFullChannel(sendersName) != null){
                                     ChannelUtils.removePlayerFromChannel(sendersName);
@@ -156,22 +155,20 @@ public class chatListener implements Listener {
                 }
             }else if(message.startsWith("@")){
                 if(message.startsWith("@")){
-                    HashMap<String, String> playerChannels = QuickChat.getPlayerChannels();
-                    HashMap<String, String> lastPlayers = QuickChat.getlastPlayers();
                     // Message: @
                     if(message.equals("@")){
 
                         StringBuilder buildMessage = new StringBuilder();
 
-                        if(!lastPlayers.get(sendersName).equals("Null")){
-                            buildMessage.append(messageData.get("quickchat.private.lastplayer").replace("%player%", lastPlayers
-                                    .get(sendersName)));
+                        if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
+                            buildMessage.append(messageData.get("quickchat.private.lastplayer").replace("%player%", 
+                                    PlayerChannelUtils.getPartner(sendersName)));
                         }else{
                             buildMessage.append(messageData.get("quickchat.private.lastplayer").replace("%player%", "&4None"));
                         }
 
-                        if(playerHasPlayerChannel(sendersName)){
-                            String otherPlayer = playerChannels.get(sendersName);
+                        if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
+                            String otherPlayer = PlayerChannelUtils.getPartner(sendersName);
                             buildMessage.append(messageData.get("quickchat.private.conversation")
                                     .replace("%player%", otherPlayer));
                         }else{
@@ -186,9 +183,9 @@ public class chatListener implements Listener {
                         String reciever = message.replaceFirst("@", "");
 
                         if(reciever.equalsIgnoreCase("console")){
-                            if(playerChannels.containsKey(sendersName)){
-                                if(!playerChannels.get(sendersName).equalsIgnoreCase("Console")){
-                                    QuickChat.addPlayerChannel(sendersName, "Console");
+                            if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
+                                if(!PlayerChannelUtils.getPartner(sendersName).equalsIgnoreCase("Console")){
+                                    PlayerChannelUtils.addPlayerChannel(sendersName, "Console");
                                     sender.sendMessage(messageData.get("quickchat.private.joinchannel")
                                             .replace("%player%", "the Console"));
                                     QuickChat.getConsole().sendMessage("[QuickChat] "
@@ -199,7 +196,7 @@ public class chatListener implements Listener {
                                             .replace("%player%", "the Console"));
                                 }
                             }else{
-                                QuickChat.addPlayerChannel(sendersName, "Console");
+                                PlayerChannelUtils.addPlayerChannel(sendersName, "Console");
                                 QuickChat.getConsole().sendMessage("[QuickChat] "
                                         + messageData.get("quickchat.console.joinplayerchannel").replace("%player%", sendersName)
                                                 .replace("%otherplayer%", "the Console"));
@@ -223,11 +220,11 @@ public class chatListener implements Listener {
 
                                 String otherPlayersName = players.get(0).getDisplayName();
 
-                                if(playerChannels.containsKey(sendersName)){
-                                    if(!playerChannels.get(sendersName).equals(otherPlayersName)){
+                                if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
+                                    if(!PlayerChannelUtils.getPartner(sendersName).equals(otherPlayersName)){
 
-                                        if(!isIgnored(sendersName, players.get(0).getDisplayName())){
-                                            QuickChat.addPlayerChannel(sendersName, otherPlayersName);
+                                        if(!QuickChat.isIgnored(sendersName, players.get(0).getDisplayName())){
+                                            PlayerChannelUtils.addPlayerChannel(sendersName, otherPlayersName);
 
                                             QuickChat.getConsole().sendMessage("[QuickChat] "
                                                     + messageData.get("quickchat.console.joinplayerchannel")
@@ -244,8 +241,8 @@ public class chatListener implements Listener {
                                                 .replace("%player%", otherPlayersName));
                                     }
                                 }else{
-                                    if(!isIgnored(sendersName, players.get(0).getDisplayName())){
-                                        QuickChat.addPlayerChannel(sendersName, otherPlayersName);
+                                    if(!QuickChat.isIgnored(sendersName, players.get(0).getDisplayName())){
+                                        PlayerChannelUtils.addPlayerChannel(sendersName, otherPlayersName);
 
                                         QuickChat.getConsole().sendMessage("[QuickChat] "
                                                 + messageData.get("quickchat.console.joinplayerchannel")
@@ -284,7 +281,7 @@ public class chatListener implements Listener {
                             }else{
                                 Player reciever = players.get(0);
 
-                                if(isIgnored(sendersName, reciever.getDisplayName())){
+                                if(QuickChat.isIgnored(sendersName, reciever.getDisplayName())){
                                     sender.sendMessage(messageData.get("quickchat.ignore.message").replace("%player%", reciever
                                             .getDisplayName()));
                                 }else{
@@ -297,7 +294,7 @@ public class chatListener implements Listener {
                                     sendMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
                                             + reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r " + sendMessage;
                                     QuickChat.addLastPlayers(reciever.getDisplayName(), sendersName);
-                                    if(QuickChat.getlastPlayers().get(sendersName).equals("Null"))
+                                    if(QuickChat.getLastPlayer(sendersName).equals("Null"))
                                         QuickChat.addLastPlayers(sendersName, reciever.getDisplayName());
                                     reciever.sendMessage(sendMessage);
 
@@ -311,30 +308,30 @@ public class chatListener implements Listener {
 
                         sendMessage = MessageUtils.formatCodes(sender, sendMessage);
 
-                        if(!lastPlayers.get(sendersName).equals("Null")){
-                            if(lastPlayers.get(sendersName).equalsIgnoreCase("console")){
+                        if(!QuickChat.getLastPlayer(sendersName).equals("Null")){
+                            if(QuickChat.getLastPlayer(sendersName).equalsIgnoreCase("console")){
                                 String fullMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
-                                        + lastPlayers.get(sendersName) + QuickChat.getPrivateColor() + ">§r " + sendMessage;
+                                        + QuickChat.getLastPlayer(sendersName) + QuickChat.getPrivateColor() + ">§r " + sendMessage;
                                 sender.sendMessage(fullMessage);
                                 QuickChat.getConsole().sendMessage(fullMessage);
                                 QuickChat.addLastPlayers("Console", sendersName);
                             }else{
-                                Player reciever = Bukkit.getPlayerExact(lastPlayers.get(sendersName));
+                                Player reciever = Bukkit.getPlayerExact(QuickChat.getLastPlayer(sendersName));
 
                                 if(reciever != null){
-                                    if(isIgnored(sendersName, reciever.getDisplayName())){
+                                    if(QuickChat.isIgnored(sendersName, reciever.getDisplayName())){
                                         sender.sendMessage(messageData.get("quickchat.ignore.message")
                                                 .replace("%player%", reciever.getDisplayName()));
                                     }else{
                                         if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                                && !isIgnored(sendersName, reciever.getDisplayName()))
+                                                && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                                             sendMessage = MessageUtils.ping(reciever, sendMessage);
 
                                         String fullMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
                                                 + reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r" + sendMessage;
-                                        if(!reciever.equals(sender) && !isIgnored(sendersName, reciever.getDisplayName()))
+                                        if(!reciever.equals(sender) && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                                             reciever.sendMessage(fullMessage);
-                                        else if(isIgnored(sendersName, reciever.getDisplayName()))
+                                        else if(QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                                             sender.sendMessage(messageData.get("quickchat.ignore.message")
                                                     .replaceAll("%player%", reciever.getDisplayName()));
 
@@ -345,7 +342,7 @@ public class chatListener implements Listener {
                                     }
                                 }else{
                                     sender.sendMessage(messageData.get("quickchat.private.lastPlayerLeft")
-                                            .replace("%player%", lastPlayers.get(sendersName)));
+                                            .replace("%player%", QuickChat.getLastPlayer(sendersName)));
                                 }
                             }
                         }else{
@@ -418,8 +415,6 @@ public class chatListener implements Listener {
                 // Message: ?<Player>
             }else if(message.startsWith("?") && !message.equals("?") && !message.contains(" ")){
 
-                HashMap<String, String> playerChannels = QuickChat.getPlayerChannels();
-
                 String requestedPlayer = message.replace("?", "");
                 if(requestedPlayer.equalsIgnoreCase("console")){
                     sender.sendMessage(messageData.get("quickchat.info.console"));
@@ -434,7 +429,7 @@ public class chatListener implements Listener {
                     }else{
                         Player reciever = players.get(0);
 
-                        if(playerChannels.containsKey(sendersName)){
+                        if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
                             sender.sendMessage(messageData.get("quickchat.info.playersconversation").replace("%player%", reciever
                                     .getDisplayName()));
 
@@ -451,34 +446,8 @@ public class chatListener implements Listener {
                 if(message.equals("~")){
                     StringBuilder buildMessage = new StringBuilder();
 
-                    StringBuilder playersIgnored = new StringBuilder();
-
-                    for(String string: QuickChat.getIgnoredPlayer().get(sendersName)){
-                        playersIgnored.append(" " + string);
-                    }
-
-                    if(playersIgnored.toString().trim().split(" ").length > 2){
-                        playersIgnored = new StringBuilder(" " + playersIgnored.toString().trim().replace(" ", ", "));
-                        playersIgnored.replace(playersIgnored.lastIndexOf(", "), playersIgnored.lastIndexOf(", ") + 1, ", and");
-                    }else if(playersIgnored.toString().trim().split(" ").length > 1){
-                        playersIgnored = new StringBuilder(" " + playersIgnored.toString().trim().replace(" ", " and "));
-                    }
-
-                    StringBuilder playersIgnoring = new StringBuilder();
-
-                    for(String player: QuickChat.getIgnoredPlayer().keySet()){
-                        if(QuickChat.getIgnoredPlayer().get(player).contains(sendersName)){
-                            playersIgnoring.append(" " + player);
-                        }
-                    }
-
-                    if(playersIgnoring.toString().trim().split(" ").length > 2){
-                        playersIgnoring = new StringBuilder(" " + playersIgnoring.toString().trim().replace(" ", ", "));
-                        playersIgnoring
-                                .replace(playersIgnoring.lastIndexOf(", "), playersIgnoring.lastIndexOf(", ") + 1, ", and");
-                    }else if(playersIgnoring.toString().trim().split(" ").length > 1){
-                        playersIgnoring = new StringBuilder(" " + playersIgnoring.toString().trim().replace(" ", " and "));
-                    }
+                    StringBuilder playersIgnored = new StringBuilder(QuickChat.getIgnoredPlayers(sendersName));
+                    StringBuilder playersIgnoring = new StringBuilder(QuickChat.getIgnoringPlayers(sendersName));
 
                     if(playersIgnored.toString().isEmpty()){
                         buildMessage.append(messageData.get("quickchat.ignore.listignored")
@@ -512,7 +481,7 @@ public class chatListener implements Listener {
 
                         if(!player.equals(sender)){
                             if(!player.isOp() && !player.hasPermission("quickchat.ignore.deny")){
-                                if(!QuickChat.getIgnoredPlayer().get(sendersName).contains(playersName)){
+                                if(!QuickChat.isIgnored(sendersName, playersName)){
                                     QuickChat.addIgnoredPlayerToPlayer(sendersName, playersName);
                                     sender.sendMessage(messageData.get("quickchat.ignore.ignoring")
                                             .replace("%player%", playersName));
@@ -535,42 +504,40 @@ public class chatListener implements Listener {
                 }
             }else{
 
-                HashMap<String, String> playerChannels = QuickChat.getPlayerChannels();
-
-                if(playerChannels.containsKey(sendersName)){
+                if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){
 
                     String sendMessage = message;
 
                     sendMessage = MessageUtils.formatCodes(sender, sendMessage);
 
-                    if(playerChannels.get(sendersName).equalsIgnoreCase("Console")){
+                    if(PlayerChannelUtils.getPartner(sendersName).equalsIgnoreCase("Console")){
 
                         String fullMessage = "§5<§r" + sendersName + " -> " + "Console" + "§5>§r " + sendMessage;
                         QuickChat.getConsole().sendMessage(fullMessage);
                         sender.sendMessage(fullMessage);
 
                     }else{
-                        Player reciever = Bukkit.getPlayerExact(playerChannels.get(sendersName));
+                        Player reciever = Bukkit.getPlayerExact(PlayerChannelUtils.getPartner(sendersName));
 
                         if(reciever == null){
                             sender.sendMessage(messageData.get("quickchat.private.lastPlayerLeft")
-                                    .replace("%player%", playerChannels.get(sendersName)));
-                            QuickChat.getPlayerChannels().remove(sendersName);
+                                    .replace("%player%", PlayerChannelUtils.getPartner(sendersName)));
+                            PlayerChannelUtils.removePlayerChannel(sendersName);
                             ChannelUtils.joinLoginChannel(sender);
                         }else{
                             String reciversMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> "
                                     + reciever.getDisplayName() + QuickChat.getPrivateColor() + ">§r " + sendMessage;
                             if(!reciever.equals(sender)) sender.sendMessage(reciversMessage);
                             if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                    && !isIgnored(sendersName, reciever.getDisplayName()))
+                                    && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                                 sendMessage = MessageUtils.ping(reciever, sendMessage);
 
                             sendMessage = QuickChat.getPrivateColor() + "<§r" + sendersName + " -> " + reciever.getDisplayName()
                                     + QuickChat.getPrivateColor() + ">§r " + sendMessage;
 
-                            if(!isIgnored(sendersName, reciever.getDisplayName())) reciever.sendMessage(sendMessage);
+                            if(!QuickChat.isIgnored(sendersName, reciever.getDisplayName())) reciever.sendMessage(sendMessage);
 
-                            QuickChat.getlastPlayers().put(reciever.getDisplayName(), sendersName);
+                            QuickChat.addLastPlayers(reciever.getDisplayName(), sendersName);
                             QuickChat.getConsole().sendMessage(sendMessage);
                         }
 
@@ -587,10 +554,9 @@ public class chatListener implements Listener {
                                 + MessageUtils.formatCodes(sender, message);
 
                         QuickChat.getConsole().sendMessage(consoleMessage);
-
                         sender.sendMessage(consoleMessage);
 
-                        if(ChannelUtils.getPlayersWhoHeardYou(channel, sender, consoleMessage, 0) == 0){
+                        if(ChannelUtils.getPlayersWhoHeardYou(channel, sender, MessageUtils.formatCodes(sender, message) , 0) == 0){
                             sender.sendMessage(messageData.get("quickchat.info.nobody"));
                         }
                     }else{
@@ -600,21 +566,6 @@ public class chatListener implements Listener {
             }
         }
     };
-
-    private boolean isIgnored(String sender, String Player){
-        return QuickChat.getIgnoredPlayer().get(Player).contains(sender);
-    }
-
-    private boolean playerHasPlayerChannel(String Player){
-        HashMap<String, String> playerChannels = QuickChat.getPlayerChannels();
-
-        for(String playersChannel: playerChannels.keySet()){
-            if(playersChannel.equals(Player)){
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void sendMultilineMessage(Player player, String message){
         if(player != null && message != null && player.isOnline()){

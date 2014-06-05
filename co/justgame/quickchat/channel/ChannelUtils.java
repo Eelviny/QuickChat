@@ -29,7 +29,7 @@ public class ChannelUtils {
         channels.put(s, c);
     }
 
-    public static void removePlayerFromChannelIfOneExists(String p){
+    public static synchronized void removePlayerFromChannelIfOneExists(String p){
         if(getChannel(p).equals("Null")){
             channels.get(getChannel(p)).removePlayer(p);
         }
@@ -92,7 +92,7 @@ public class ChannelUtils {
                 if(realPlayer.hasPermission("quickchat.channel." + sendersChannel.getName())
                         || realPlayer.hasPermission("quickchat.channel")){
                     if(inRange(p, realPlayer, sendersChannel.getName())){
-                        if(!isIgnored(p.getName(), player)) players.append(" " + player);
+                        if(!QuickChat.isIgnored(p.getName(), player)) players.append(" " + player);
                     }
                 }
             }
@@ -112,7 +112,7 @@ public class ChannelUtils {
         return players.toString();
     }
 
-    public static boolean inRange(Player sender, Player reciever, String channel){
+    public static synchronized boolean inRange(Player sender, Player reciever, String channel){
         if(channels.get(channel).getradius() > -1){
             if(sender.getWorld() == reciever.getWorld()){
                 if(sender.getLocation().distance(reciever.getLocation()) <= channels.get(channel).getradius()){
@@ -125,9 +125,9 @@ public class ChannelUtils {
         return false;
     }
 
-    public static void joinLoginChannel(Player player){
+    public static synchronized void joinLoginChannel(Player player){
         for(Channel channel: channels.values()){
-            QuickChat.getlastPlayers().put(player.getDisplayName(), "Null");
+            QuickChat.addLastPlayers(player.getDisplayName(), "Null");
             if(player.hasPermission("quickchat.channels." + channel.getName())){
                 channel.addPlayer(player.getDisplayName());
                 QuickChat.getConsole().sendMessage("[QuickChat] "
@@ -161,13 +161,13 @@ public class ChannelUtils {
                         if(inRange(sender, reciever, channel)){
                             String finalMessage = sendMessage;
                             if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                    && !isIgnored(sendersName, reciever.getDisplayName()))
+                                    && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                                 finalMessage = MessageUtils.ping(reciever, finalMessage);
 
                             finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
                                     + QuickChat.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
 
-                            if(!isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender)){
+                            if(!QuickChat.isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender)){
                                 reciever.sendMessage(finalMessage);
                                 PlayersWhoHeardYou++;
                             }
@@ -176,7 +176,7 @@ public class ChannelUtils {
             }
         }
 
-        for(String PlayerInConversation: QuickChat.getPlayerChannels().keySet()){
+        for(String PlayerInConversation: PlayerChannelUtils.getPlayersInConversation()){
             Player reciever = Bukkit.getPlayerExact(PlayerInConversation);
             if(reciever != null)
                 if(reciever.hasPermission("quickchat.channel." + channel) || reciever.hasPermission("quickchat.channel")){
@@ -184,13 +184,13 @@ public class ChannelUtils {
                     if(inRange(sender, reciever, channel)){
                         String finalMessage = sendMessage;
                         if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                && !isIgnored(sendersName, reciever.getDisplayName()))
+                                && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
                             finalMessage = MessageUtils.ping(reciever, finalMessage);
 
                         finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
                                 + QuickChat.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
 
-                        if(!isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender))
+                        if(!QuickChat.isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender))
                             reciever.sendMessage(finalMessage);
                         PlayersWhoHeardYou++;
                     }
@@ -200,7 +200,11 @@ public class ChannelUtils {
     }
 
     public static synchronized boolean playerIsAlreadyInChannel(String channel, Player p){
-        return channels.get(channel).getName().equals(getFullChannel(p.getName()).getName());
+        if(getFullChannel(p.getDisplayName()) == null){
+            return false;
+        }else{
+             return channels.get(channel).getName().equals(getFullChannel(p.getDisplayName()).getName());
+        }
     }
 
     public static synchronized boolean isDuplicate(String channel){
@@ -221,13 +225,5 @@ public class ChannelUtils {
 
     public static synchronized Set<String> getChannelNames(){
         return channels.keySet();
-    }
-
-    /*
-     * Private
-     */
-
-    private static boolean isIgnored(String sender, String Player){
-        return QuickChat.getIgnoredPlayer().get(Player).contains(sender);
     }
 }

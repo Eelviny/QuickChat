@@ -30,7 +30,7 @@ import co.justgame.quickchat.listeners.chatListener;
 import co.justgame.quickchat.listeners.utils.MessageUtils;
 
 public class QuickChat extends JavaPlugin {
-
+    
     public static Plugin quickChat;
 
     public static HashMap<String, String> messageData = new HashMap<String, String>();

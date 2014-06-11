@@ -29,6 +29,7 @@ public class LoginLogoutListener implements Listener {
         if(ChannelUtils.getFullChannel(player.getName()) == null){
             QuickChat.getConsole().sendMessage("[QuickChat] "
                     + messageData.get("quickchat.console.joinnull").replace("%player%", player.getDisplayName()));
+            player.sendMessage(messageData.get("quickchat.channels.join").replace("%channel%", "Null"));
         }
     }
 

@@ -72,7 +72,6 @@ public class ChannelUtils {
         for(Channel joinChannel: channels.values()){
             if(p.hasPermission("quickchat.channel." + joinChannel.getName())){
                 joinChannel.addPlayer(p.getDisplayName());
-                p.sendMessage(messageData.get("quickchat.channels.join").replace("%channel%", joinChannel.getName()));
                 break;
             }
         }

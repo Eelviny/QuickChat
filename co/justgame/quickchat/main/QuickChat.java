@@ -39,6 +39,7 @@ public class QuickChat extends JavaPlugin {
     private static HashMap<String, ArrayList<String>> ignoredPlayers = new HashMap<String, ArrayList<String>>();
 
     public static String broadCastName = "";
+    
     public static ChatColor privateColor = ChatColor.LIGHT_PURPLE;
 
     public static Sound pingSound = Sound.ORB_PICKUP;

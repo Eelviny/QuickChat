@@ -26,6 +26,7 @@ import co.justgame.quickchat.channel.Channel;
 import co.justgame.quickchat.channel.ChannelUtils;
 import co.justgame.quickchat.channel.PlayerChannelUtils;
 import co.justgame.quickchat.listeners.LoginLogoutListener;
+import co.justgame.quickchat.listeners.MuteUtils;
 import co.justgame.quickchat.listeners.chatListener;
 import co.justgame.quickchat.listeners.utils.MessageUtils;
 
@@ -145,6 +146,7 @@ public class QuickChat extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new chatListener(), this);
         getServer().getPluginManager().registerEvents(new LoginLogoutListener(), this);
+        getServer().getPluginManager().registerEvents(new MuteUtils(), this);
 
     }
 
@@ -227,6 +229,27 @@ public class QuickChat extends JavaPlugin {
                 sender.sendMessage(messageData.get("quickchat.rawtext.consoleimproperusage"));
             }
 
+            return true;
+            
+        }else if(cmd.getName().equalsIgnoreCase("-")){
+            if(args.length == 1){
+                List<Player> matches = Bukkit.matchPlayer(args[0]);
+                if(matches.size() == 1){
+                    Player p = matches.get(0);
+                    if(MuteUtils.isMuted(p)){
+                        MuteUtils.unmute(p);
+                        sender.sendMessage(messageData.get("quickchat.mute.unmute").replace("%p%", p.getName()));
+                        p.sendMessage(messageData.get("quickchat.mute.otherunmute"));
+                    }else{ 
+                        MuteUtils.mute(p); 
+                        sender.sendMessage(messageData.get("quickchat.mute.mute").replace("%p%", p.getName()));
+                        p.sendMessage(messageData.get("quickchat.mute.othermute"));
+                    }
+                }else if(matches.size() == 0)
+                    sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", args[0]));
+                else if(matches.size() > 1) 
+                    sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
+            }else sender.sendMessage(messageData.get("quickchat.mute.usage"));
             return true;
         }else if(cmd.getName().equalsIgnoreCase("@")){
             if(sender instanceof Player){
@@ -644,6 +667,13 @@ public class QuickChat extends JavaPlugin {
         setMessage("quickchat.ignore.notignoring", "&aYou are no longer ignoring %player%");
         setMessage("quickchat.ignore.listignored", "&aPlayers You Are Ignoring:&2%playerList%/n");
         setMessage("quickchat.ignore.listignoring", "&aPlayers Ignoring You:&2%playerList%");
+        
+        setMessage("quickchat.mute.usage", "&c-<Player>");
+        setMessage("quickchat.mute.message", "&cYou may not chat now, You are muted!");
+        setMessage("quickchat.mute.mute", "&eMuted %p%!");
+        setMessage("quickchat.mute.othermute", "&eYou have been muted!");
+        setMessage("quickchat.mute.unmute", "&aUnmuted %p%!");
+        setMessage("quickchat.mute.otherunmute", "&aYou have been Unmuted!");
 
         setMessage("quickchat.info.nobody", "&cNobody heard you! No players in channel or within range.");
         setMessage("quickchat.info.playerschannel", "&a%player% is in %channel% channel.");

@@ -25,7 +25,7 @@ public class chatListener implements Listener {
     public synchronized void playerChat(AsyncPlayerChatEvent e){
         if(!e.isCancelled()){
             e.setCancelled(true);
-            process(e);
+            process(e); 
         }
     };
     
@@ -509,6 +509,25 @@ public class chatListener implements Listener {
                             }
                         }
                     }
+                }else if(message.startsWith("-") && sender.hasPermission("quickchat.mute") && !message.equals("-")){
+                    if(!message.contains(" ")){
+                        List<Player> matches = Bukkit.matchPlayer(message.replace("-", ""));
+                        if(matches.size() == 1){
+                            Player p = matches.get(0);
+                            if(MuteUtils.isMuted(p)){
+                                MuteUtils.unmute(p);
+                                sender.sendMessage(messageData.get("quickchat.mute.unmute").replace("%p%", p.getName()));
+                                p.sendMessage(messageData.get("quickchat.mute.otherunmute"));
+                            }else{ 
+                                MuteUtils.mute(p); 
+                                sender.sendMessage(messageData.get("quickchat.mute.mute").replace("%p%", p.getName()));
+                                p.sendMessage(messageData.get("quickchat.mute.othermute"));
+                            }
+                        }else if(matches.size() == 0)
+                            sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", message.replace("-", "")));
+                        else if(matches.size() > 1) 
+                            sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
+                    }else sender.sendMessage(messageData.get("quickchat.mute.usage"));
                 }else{
 
                     if(PlayerChannelUtils.playerHasPlayerChannel(sendersName)){

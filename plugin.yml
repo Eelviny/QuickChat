@@ -1,6 +1,6 @@
 name: QuickChat
 main: co.justgame.quickchat.main.QuickChat
-version: 2.2.1
+version: 2.3.0
 description: QuickChat overhauls the chat system into something simpler and more intelligent to use.
 author: JayLegoMine14
 website: http://justgame.co/
@@ -15,6 +15,9 @@ commands:
    '>':
       description: Does the same as ">" in chat.
       usage: /<command>
+   '-':
+      description: Does the same as "-" in chat.
+      usage: /<command>
 permissions:
    quickchat.*:
       description: Gives access to all quickchat commands and actions.
@@ -25,6 +28,7 @@ permissions:
          quickchat.rawtext: true
          quickchat.ping: true
          quickchat.ignore: true
+         quickchat.mute: true
          quickchat.ignore.deny: true
          quickchat.code.*: true
    quickchat.channel:
@@ -45,6 +49,9 @@ permissions:
    quickchat.ignore:
       description: Give Player permission to ignore other players.
       default: true
+   quickchat.mute:
+      description: Give Player permission to mute other players.
+      default: op
    quickchat.ignore.deny:
       description: Player cannot be ignored.
       default: op

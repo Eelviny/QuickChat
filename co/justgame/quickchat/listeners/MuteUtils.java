@@ -20,7 +20,7 @@ public class MuteUtils implements Listener {
     
     @EventHandler(priority = EventPriority.LOW)
     public void playerChat(AsyncPlayerChatEvent e){
-            if(!e.getMessage().startsWith("@"))
+            if(!e.getMessage().startsWith("@") && !e.getMessage().startsWith("-"))
                if(muted.contains(e.getPlayer())){ 
                    e.setCancelled(true); e.getPlayer().sendMessage(messageData.get("quickchat.mute.message"));
                }

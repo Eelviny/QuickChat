@@ -3,4 +3,4 @@ QuickChat
 
 Allows for simple channels, private messages and broadcasts
 
-If you wish to use this plugin or modify it, you must ask permission from Eelviny.
+The plugin page can be found here: http://www.spigotmc.org/resources/quickchat.805/

@@ -1,45 +1,8 @@
-package co.justgame.quickchat.listeners.utils;
+package co.justgame.quickchat.utils;
 
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import co.justgame.quickchat.main.QuickChat;
-
-public class MessageUtils {
-
-    public static String ping(Player player, String sendMessage){
-        if(player.hasPermission("quickchat.ping") && StringUtils.containsIgnoreCase(sendMessage, player.getDisplayName())
-                || StringUtils.containsIgnoreCase(sendMessage, removeNums(player.getDisplayName()))){
-
-            sendMessage = pingFormat(sendMessage, player.getDisplayName());
-            player.playSound(Bukkit.getPlayerExact(player.getDisplayName()).getLocation(), QuickChat.getPingSound(), QuickChat
-                    .getPingVolume(), QuickChat.getPingPitch());
-        }
-        return sendMessage;
-    }
-
-    public static String pingFormat(String scource, String name){
-        StringBuilder formatprefix = new StringBuilder();
-        formatprefix.append("§r");
-        for(int i = 0; i < scource.length(); i++){
-            if(scource.charAt(i) == '&' || scource.charAt(i) == '§'){
-                try{
-                    formatprefix.append(String.valueOf(scource.charAt(i)));
-                    formatprefix.append(String.valueOf(scource.charAt(i + 1)));
-                }catch (StringIndexOutOfBoundsException e){
-                    formatprefix.append(String.valueOf(scource.charAt(i)));
-                }
-            }
-        }
-
-        if(StringUtils.contains(scource, name)){
-            return scource.replaceAll("(?i)" + name, QuickChat.getPingFormat() + name + formatprefix.toString());
-        }else{
-            return scource.replaceAll("(?i)" + removeNums(name), QuickChat.getPingFormat() + removeNums(name)
-                    + formatprefix.toString());
-        }
-    }
+public class MessageFormatUtils {
 
     private static String removeFormatCodes(String string){
         string = string.replace("&l", "").replace("&n", "").replace("&o", "").replace("&k", "").replace("&m", "")
@@ -52,14 +15,6 @@ public class MessageUtils {
                 .replace("&6", "").replace("&7", "").replace("&8", "").replace("&9", "").replace("&0", "").replace("&a", "")
                 .replace("&b", "").replace("&c", "").replace("&d", "").replace("&e", "").replace("&f", "").replace("&r", "");
         return string;
-    }
-
-    public static String removeNums(String name){
-        String nameWithoutNums = "";
-        for(int i = 0; i < name.length(); i++){
-            if(name.charAt(i) < '0' || name.charAt(i) > '9') nameWithoutNums = nameWithoutNums + name.charAt(i);
-        }
-        return nameWithoutNums;
     }
 
     public static String formatCodes(Player player, String sendMessage){

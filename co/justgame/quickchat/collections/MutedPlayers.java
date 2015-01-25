@@ -1,7 +1,6 @@
-package co.justgame.quickchat.listeners;
+package co.justgame.quickchat.collections;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,14 +8,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import co.justgame.quickchat.main.QuickChat;
+import co.justgame.quickchat.utils.MessageData;
 
-
-public class MuteUtils implements Listener {
+public class MutedPlayers implements Listener, MessageData {
     
     static ArrayList<Player> muted = new ArrayList<Player>();
-    
-    private HashMap<String, String> messageData = QuickChat.getMessageData(); 
     
     @EventHandler(priority = EventPriority.LOW)
     public void playerChat(AsyncPlayerChatEvent e){

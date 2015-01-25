@@ -1,12 +1,13 @@
 package co.justgame.quickchat.channel;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 
 public class Channel {
 
-    private ArrayList<String> players;
+    private ArrayList<UUID> players;
 
     private String name;
     private int radius;
@@ -17,7 +18,7 @@ public class Channel {
         this.name = name;
         this.radius = radius;
         this.color = color;
-        players = new ArrayList<String>();
+        players = new ArrayList<UUID>();
 
     }
 
@@ -26,7 +27,7 @@ public class Channel {
         this.name = "";
         this.radius = 100;
         this.color = ChatColor.WHITE;
-        players = new ArrayList<String>();
+        players = new ArrayList<UUID>();
     }
 
     public String getName(){
@@ -41,7 +42,7 @@ public class Channel {
         return this.color;
     }
 
-    public ArrayList<String> getplayers(){
+    public ArrayList<UUID> getplayers(){
         return this.players;
     }
 
@@ -57,11 +58,11 @@ public class Channel {
         this.color = color;
     }
 
-    public synchronized void addPlayer(String player){
+    public synchronized void addPlayer(UUID player){
         players.add(player);
     }
 
-    public synchronized void removePlayer(String player){
+    public synchronized void removePlayer(UUID player){
         players.remove(players.indexOf(player));
     }
 }

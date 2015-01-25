@@ -1,25 +1,23 @@
-package co.justgame.quickchat.channel;
+package co.justgame.quickchat.utils;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import co.justgame.quickchat.listeners.utils.MessageUtils;
+import co.justgame.quickchat.channel.Channel;
+import co.justgame.quickchat.collections.IgnoredPlayers;
+import co.justgame.quickchat.collections.LastPlayers;
+import co.justgame.quickchat.collections.PlayerChannels;
 import co.justgame.quickchat.main.QuickChat;
 
-public class ChannelUtils {
-
-    private static HashMap<String, String> messageData = QuickChat.getMessageData();
+public class ChannelUtils implements MessageData {
 
     private static LinkedHashMap<String, Channel> channels = new LinkedHashMap<String, Channel>();
 
-    /*
-     * Return Type Void
-     */
     public static synchronized void clear(){
         channels.clear();
     }
@@ -28,28 +26,28 @@ public class ChannelUtils {
         channels.put(s, c);
     }
 
-    public static synchronized void removePlayerFromChannelIfOneExists(String p){
+    public static synchronized void removePlayerFromChannelIfOneExists(UUID p){
         if(getChannel(p).equals("Null")){
             channels.get(getChannel(p)).removePlayer(p);
         }
     }
 
-    public static synchronized void removePlayerFromChannel(String channel, String player){
+    public static synchronized void removePlayerFromChannel(String channel, UUID player){
         channels.get(channel).removePlayer(player);
     }
 
-    public static synchronized void removePlayerFromChannel(String player){
+    public static synchronized void removePlayerFromChannel(UUID player){
         getFullChannel(player).removePlayer(player);
     }
 
-    public static synchronized void addPlayerToChannel(String channel, String player){
+    public static synchronized void addPlayerToChannel(String channel, UUID player){
         channels.get(channel).addPlayer(player);
     }
 
-    public static synchronized String getChannel(String player){
+    public static synchronized String getChannel(UUID p){
         for(Channel channel: channels.values()){
-            for(String playerInChannel: channel.getplayers()){
-                if(playerInChannel.equals(player)){
+            for(UUID playerInChannel: channel.getplayers()){
+                if(playerInChannel.equals(p)){
                     return channel.getName();
                 }
             }
@@ -57,9 +55,9 @@ public class ChannelUtils {
         return "Null";
     }
 
-    public static synchronized Channel getFullChannel(String player){
+    public static synchronized Channel getFullChannel(UUID player){
         for(Channel channel: channels.values()){
-            for(String playerInChannel: channel.getplayers()){
+            for(UUID playerInChannel: channel.getplayers()){
                 if(playerInChannel.equals(player)){
                     return channel;
                 }
@@ -71,26 +69,23 @@ public class ChannelUtils {
     public static synchronized void addPlayerToFirstAvailableChannel(Player p){
         for(Channel joinChannel: channels.values()){
             if(p.hasPermission("quickchat.channel." + joinChannel.getName())){
-                joinChannel.addPlayer(p.getDisplayName());
+                joinChannel.addPlayer(p.getUniqueId());
                 break;
             }
         }
     }
-
-    /*
-     * Return Type Not Void
-     */
+    
     public static synchronized String getPlayersInRange(Player p){
         StringBuilder players = new StringBuilder();
 
-        Channel sendersChannel = ChannelUtils.getFullChannel(p.getName());
+        Channel sendersChannel = ChannelUtils.getFullChannel(p.getUniqueId());
         for(Channel channel: channels.values()){
-            for(String player: channel.getplayers()){
-                Player realPlayer = Bukkit.getPlayerExact(player);
+            for(UUID playerID: channel.getplayers()){
+                Player realPlayer = Bukkit.getPlayer(playerID);
                 if(realPlayer.hasPermission("quickchat.channel." + sendersChannel.getName())
                         || realPlayer.hasPermission("quickchat.channel")){
                     if(inRange(p, realPlayer, sendersChannel.getName())){
-                        if(!QuickChat.isIgnored(p.getName(), player)) players.append(" " + player);
+                        if(!IgnoredPlayers.isIgnored(p.getUniqueId(), playerID)) players.append(" " + getDisplayName(playerID));
                     }
                 }
             }
@@ -122,12 +117,32 @@ public class ChannelUtils {
         }
         return false;
     }
+    
+    public static StringBuilder getChannelList(Player sender){
+        
+        StringBuilder channelsList = new StringBuilder();
+        
+        for(String string: ChannelUtils.getChannelNames()){
+            if(sender.hasPermission("quickchat.channel." + string) || sender.hasPermission("quickchat.channel")){
+                channelsList.append(" " + string);
+            }
+        }
+
+        if(channelsList.toString().trim().split(" ").length > 2){
+            channelsList = new StringBuilder(" " + channelsList.toString().trim().replace(" ", ", "));
+            channelsList.replace(channelsList.lastIndexOf(", "), channelsList.lastIndexOf(", ") + 1, ", and");
+        }else if(channelsList.toString().trim().split(" ").length > 1){
+            channelsList = new StringBuilder(" " + channelsList.toString().trim().replace(" ", " and "));
+        }
+        
+        return channelsList;
+    }
 
     public static synchronized void joinLoginChannel(Player player){
         for(Channel channel: channels.values()){
-            QuickChat.addLastPlayers(player.getDisplayName(), "Null");
+            LastPlayers.addLastPlayers(player.getUniqueId(), null);
             if(player.hasPermission("quickchat.channels." + channel.getName())){
-                channel.addPlayer(player.getDisplayName());
+                channel.addPlayer(player.getUniqueId());
                 QuickChat.getConsole().sendMessage("[QuickChat] "
                         + messageData.get("quickchat.console.joinchannel").replace("%player%", player.getDisplayName())
                                 .replace("%channel%", channel.getName()));
@@ -135,7 +150,7 @@ public class ChannelUtils {
                 break;
             }
         }
-        if(channels.get(getChannel(player.getDisplayName())) == null){
+        if(channels.get(getChannel(player.getUniqueId())) == null){
             QuickChat.getConsole().sendMessage("[QuickChat] "
                     + messageData.get("quickchat.console.joinnull").replace("%player%", player.getDisplayName()));
             player.sendMessage(messageData.get("quickchat.channels.join").replace("%channel%", "Null"));
@@ -146,12 +161,12 @@ public class ChannelUtils {
 
         ChatColor color = ChannelUtils.getColor(channel);
         ChatColor reset = ChatColor.RESET;
-        String sendersName = sender.getName();
+        UUID sendersName = sender.getUniqueId();
 
         int PlayersWhoHeardYou = i;
         for(Channel channelInList: channels.values()){
-            for(String playerInChannel: channelInList.getplayers()){
-                Player reciever = Bukkit.getPlayerExact(playerInChannel);
+            for(UUID playerInChannel: channelInList.getplayers()){
+                Player reciever = Bukkit.getPlayer(playerInChannel);
 
                 if(reciever != null)
                     if(reciever.hasPermission("quickchat.channel." + channel) || reciever.hasPermission("quickchat.channel")){
@@ -159,13 +174,13 @@ public class ChannelUtils {
                         if(inRange(sender, reciever, channel)){
                             String finalMessage = sendMessage;
                             if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                    && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
-                                finalMessage = MessageUtils.ping(reciever, finalMessage);
+                                    && !IgnoredPlayers.isIgnored(sendersName, reciever.getUniqueId()))
+                                finalMessage = PingUtils.ping(reciever, finalMessage);
 
-                            finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
-                                    + QuickChat.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
+                            finalMessage = color + "<" + reset + PrefixSuffixUtils.getPlayerPrefix(sender) + sendersName
+                                    + PrefixSuffixUtils.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
 
-                            if(!QuickChat.isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender)){
+                            if(!IgnoredPlayers.isIgnored(sendersName, reciever.getUniqueId()) && !reciever.equals(sender)){
                                 reciever.sendMessage(finalMessage);
                                 PlayersWhoHeardYou++;
                             }
@@ -174,21 +189,21 @@ public class ChannelUtils {
             }
         }
 
-        for(String PlayerInConversation: PlayerChannelUtils.getPlayersInConversation()){
-            Player reciever = Bukkit.getPlayerExact(PlayerInConversation);
+        for(UUID PlayerInConversation: PlayerChannels.getPlayersInConversation()){
+            Player reciever = Bukkit.getPlayer(PlayerInConversation);
             if(reciever != null)
                 if(reciever.hasPermission("quickchat.channel." + channel) || reciever.hasPermission("quickchat.channel")){
 
                     if(inRange(sender, reciever, channel)){
                         String finalMessage = sendMessage;
                         if(!reciever.equals(sender) && sender.hasPermission("quickchat.ping")
-                                && !QuickChat.isIgnored(sendersName, reciever.getDisplayName()))
-                            finalMessage = MessageUtils.ping(reciever, finalMessage);
+                                && !IgnoredPlayers.isIgnored(sendersName, reciever.getUniqueId()))
+                            finalMessage = PingUtils.ping(reciever, finalMessage);
 
-                        finalMessage = color + "<" + reset + QuickChat.getPlayerPrefix(sender) + sendersName
-                                + QuickChat.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
+                        finalMessage = color + "<" + reset + PrefixSuffixUtils.getPlayerPrefix(sender) + sendersName
+                                + PrefixSuffixUtils.getPlayerSuffix(sender) + color + "> " + reset + finalMessage;
 
-                        if(!QuickChat.isIgnored(sendersName, reciever.getDisplayName()) && !reciever.equals(sender))
+                        if(!IgnoredPlayers.isIgnored(sendersName, reciever.getUniqueId()) && !reciever.equals(sender))
                             reciever.sendMessage(finalMessage);
                         PlayersWhoHeardYou++;
                     }
@@ -198,10 +213,10 @@ public class ChannelUtils {
     }
 
     public static synchronized boolean playerIsAlreadyInChannel(String channel, Player p){
-        if(getFullChannel(p.getDisplayName()) == null){
+        if(getFullChannel(p.getUniqueId()) == null){
             return false;
         }else{
-             return channels.get(channel).getName().equals(getFullChannel(p.getDisplayName()).getName());
+             return channels.get(channel).getName().equals(getFullChannel(p.getUniqueId()).getName());
         }
     }
 
@@ -211,6 +226,10 @@ public class ChannelUtils {
 
     public static synchronized boolean exists(String channel){
         return channels.containsKey(channel);
+    }
+    
+    public static synchronized String getDisplayName(UUID player){
+        return Bukkit.getPlayer(player).getDisplayName();
     }
 
     public static synchronized String getName(String channel){

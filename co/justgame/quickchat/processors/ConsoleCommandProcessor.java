@@ -71,11 +71,8 @@ public class ConsoleCommandProcessor implements MessageData {
                 }else if(args.length >= 2){
                     List<Player> players = ProcessorUtils.matchPlayer(playerName);
 
-                    if(players.size() == 0){
-                        sender.sendMessage(messageData.get("quickchat.rawtext.noplayer").replace("%player%", playerName));
-                    }else if(players.size() > 1){
-                        sender.sendMessage(messageData.get("quickchat.rawtext.moreplayer"));
-                    }else{
+                  //if there is only one match for the requested player
+                    if(ProcessorUtils.thereIsOnlyOneMatch(players, sender, playerName)){
                         Player reciever = players.get(0);
                         if(sender instanceof Player)
                             sender.sendMessage("<You (raw text) -> " + reciever.getDisplayName() + "> " + sendMessage);
@@ -99,7 +96,8 @@ public class ConsoleCommandProcessor implements MessageData {
         }else if(cmd.getName().equalsIgnoreCase("-")){
             if(args.length == 1){
                 List<Player> matches = ProcessorUtils.matchPlayer(args[0]);
-                if(matches.size() == 1){
+              //if there is only one match for the requested player
+                if(ProcessorUtils.thereIsOnlyOneMatch(matches, sender, args[0])){
                     Player p = matches.get(0);
                     if(MutedPlayers.isMuted(p)){
                         MutedPlayers.unmute(p);
@@ -110,10 +108,7 @@ public class ConsoleCommandProcessor implements MessageData {
                         sender.sendMessage(messageData.get("quickchat.mute.mute").replace("%p%", p.getName()));
                         p.sendMessage(messageData.get("quickchat.mute.othermute"));
                     }
-                }else if(matches.size() == 0)
-                    sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", args[0]));
-                else if(matches.size() > 1) 
-                    sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
+                }
             }else sender.sendMessage(messageData.get("quickchat.mute.usage"));
             return true;
         }else if(cmd.getName().equalsIgnoreCase("@")){
@@ -169,11 +164,8 @@ public class ConsoleCommandProcessor implements MessageData {
 
                         List<Player> players = ProcessorUtils.matchPlayer(args[0]);
 
-                        if(players.size() == 0){
-                            sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", args[0]));
-                        }else if(players.size() > 1){
-                            sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
-                        }else{
+                        //if there is only one match for the requested player
+                        if(ProcessorUtils.thereIsOnlyOneMatch(players, sender, args[0])){
                             UUID otherPlayersID = players.get(0).getUniqueId();
                             String otherPlayersName = players.get(0).getDisplayName();
 
@@ -280,11 +272,8 @@ public class ConsoleCommandProcessor implements MessageData {
                     }else{
                         List<Player> players = ProcessorUtils.matchPlayer(playerName);
 
-                        if(players.size() == 0){
-                            sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", playerName));
-                        }else if(players.size() > 1){
-                            sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
-                        }else{
+                        //if there is only one match for the requested player
+                        if(ProcessorUtils.thereIsOnlyOneMatch(players, sender, playerName)){
                             Player reciever = players.get(0);
 
                             String sendersMessage = pc + "<§r" + ProcessorUtils.getDisplayName(sendersName) + " -> " + reciever.getDisplayName()

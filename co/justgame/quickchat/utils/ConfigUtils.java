@@ -134,12 +134,8 @@ public class ConfigUtils implements MessageData {
         setMessage("quickchat.private.noconversation", "&cYou are not currently in a conversation!");
         setMessage("quickchat.private.joinchannel", "&aYou began a private conversation with %player%.");
         setMessage("quickchat.private.samechannel", "&cYou are already in a conversation with %player%!");
-        setMessage("quickchat.private.noplayer", "&cPlayer &4%player%&c not found!");
-        setMessage("quickchat.private.moreplayer", "&cPlease be more specific. More than one player found!");
         setMessage("quickchat.private.playerleft", "&aYou are no longer in a private conversation with %player%");
 
-        setMessage("quickchat.rawtext.noplayer", "&cPlayer &4%player%&c not found!");
-        setMessage("quickchat.rawtext.moreplayer", "&cPlease be more specific. More than one player found!");
         setMessage("quickchat.rawtext.improperusage", "&cUsage: >Player <Message> or > <Message>");
         setMessage("quickchat.rawtext.consoleimproperusage", "&cUsage: > <Player> <Message> or > * <Message>");
         setMessage("quickchat.rawtext.nopermission", "&cYou do not have permission to use this command!");

@@ -31,13 +31,13 @@ public class ProcessorUtils implements MessageData {
         }
     }
     
-    public static boolean thereIsOnlyOneMatch(List<Player> pl, Player sender, String reciever){
+    public static boolean thereIsOnlyOneMatch(List<Player> pl, CommandSender sender, String reciever){
       //if there are no matches, send an error message
         if(pl.size() == 0){
-            sender.sendMessage(messageData.get("quickchat.private.noplayer").replace("%player%", reciever));
+            sender.sendMessage(messageData.get("quickchat.requests.noplayer").replace("%player%", reciever));
         //if there is more than one match, send an error report
         }else if(pl.size() > 1){
-            sender.sendMessage(messageData.get("quickchat.private.moreplayer"));
+            sender.sendMessage(messageData.get("quickchat.requests.moreplayer"));
         //if there is only one match, continue
         }else{
             return true;
